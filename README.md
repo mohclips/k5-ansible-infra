@@ -4,80 +4,42 @@ This git repository contains examples of how to create infrastructure as code on
 
 Basically, in my day job I help people with Intrafructure as Code, automation and other such things.  I wrote these modules to help people access K5 more readily.  Plus it's a bit of fun. ;)
 
-As K5 is Availability Zone centric new modules were created to communicate with K5 which then bypass limitations in the Ansible Openstack os modules.
+# Cloning
 
-Primarily as K5 requires those working Availability Zone parameters. It seems from what i can tell that the underlying API 'shade' does not honour or process the availability zone parameters passed to it from Ansible.  I could have hacked about at the shade API i guess, which is probably a better idea for some of the modules, but it's easier to create new modules and more of a learning experience with Ansible module creation and K5 APIs.
+When you clone make sure you use the --recursive parameter to pull the sub-module down as well.
 
-Hopefully the modules are simple enough for others to understand and offer addtional updates. 
+eg. ```git clone --recursive https://github.com/mohclips/k5-ansible-infra.git my_project_copy```
+
+There is a great blog on submodules here https://github.com/blog/2104-working-with-submodules
 
 # Usage
 
-## Modules
+You will notice that the submodule ```k5-ansible-modules``` is included.  This is the actual modules written in python to communicate with the K5 API.
 
-### k5_auth
+When you clone, make sure you pull down the sub-module as well. (as above)
+Run ```git submodule update --init --recursive``` if it is empty.
 
-Authenticate to K5, use the returned facts to authenticate on each of the below modules.
+You can then do either of the following;
+* create a symbolic-link ```ln -s k5-ansible-modules/library/ library```
+* update your ```ANSIBLE_LIBRARY``` environment variable. see http://docs.ansible.com/ansible/dev_guide/developing_modules.html#module-paths
+* update the ```library=``` parameter in your ```ansible.cfg``` (this is colon delimited). My favorite.
 
-### k5_create_router
+If I can find a better way of doing this, I will. But at present this is the best way to keep the two apart, to allow others to just grab the modules. 
 
-Create a router in a specified Availability Zone
+Then:
 
-### k5_create_network
+Update ```vars/all.yml``` with your infrastructure settings.
 
-Create a Network in a specified Availability Zone
+And run the playbook  ```provision_infra.yml```
 
-Also note the K5 API uses different parameters in the network module to regular OpenStack API calls.  
-
-### k5_create_subnet
-
-Create a Subnet in a specified Availability Zone
-
-### k5_create_port
-
-Create a port in a specified Availability Zone
-
-### k5_assign_floating_ip
-
-Assign a floating ip from a specified Availability Zone
-
-### k5_server_console_output
-
-Return the openstack console logs for a defined server, the builds logs or sometimes called Compute Instance Logs.
-
-### k5_novnc_console
-
-Return the URL to a noVNC console for a defined server.  These URLs are time limited (for security purposes?).  
-
-Also only works in Japan East-1 at present while the update is rolled out across the various regions. (Jan2017) 
-
-## Online API Guides
-
-http://www.fujitsu.com/global/solutions/cloud/k5/guides/ 
-
-## Ansible
-
-Initially see the test cases for really simple invocation.
-
-### openrc
-
-Set the following if you wish, this is the easiest way and compatible with the env vars of the OpenStack CLI comand.
-
-Or use the parameters in ```k5_auth```.
-
-```bash
- export OS_USERNAME=obvs
- export OS_PASSWORD=obvs
- export OS_PROJECT_ID=from api url hex
- export OS_REGION_NAME=uk-1
- export OS_USER_DOMAIN_NAME=contract id
-```
-
-Update vars/all.yml with your infrastructure settings.
-
-Then run the playbook  ```provision_infra.yml```
-
-### Jump Server
+## Jump Server
 
 There is a jumpserver created, simple Ubuntu 14.04, at the end of ```provision_infras.yml```  This then pulls in another git repo of mine ```ansible-guacamole``` to create a HTML5 based terminal server.  See that git repo for more.
 
 If you wanted to rebuild the jumpserver.  Then this would be a good start ```ansible-playbook ./provision_infra.yml --tags=t_jumpsvr```.  It will then delete the jumpserver and re-create it, including the guacamole service.
+
+# Online API Guides
+
+http://www.fujitsu.com/global/solutions/cloud/k5/guides/ 
+
+

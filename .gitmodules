@@ -1,0 +1,3 @@
+[submodule "k5-ansible-modules"]
+	path = k5-ansible-modules
+	url = https://github.com/mohclips/k5-ansible-modules.git
